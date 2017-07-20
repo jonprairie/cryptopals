@@ -1,9 +1,13 @@
 var hexdecoder = require('./hexdecode');
 var xorengine = require('./xorengine');
+try {
 
-var value1 = new hexdecoder('1c0111001f010100061a024b53535009181c');
-var value2 = new hexdecoder('686974207468652062756c6c277320657965');
-
+var value1 = new hexdecoder(process.argv[1]);
+var value2 = new hexdecoder(process.argv[2]);
+} catch (e) {
+	console.error(`USAGE: program <hex ciphertext> <hex key>`);
+	process.exit(255);
+}
 var xe = new xorengine(value1, value2);
 
 xe.calculate();
