@@ -332,21 +332,16 @@ e03555453d1e31775f37331823164c341c09e310463438481019fb0b12fa
 32042f46431d2c44607934ed180c1028136a5f2b26092e3b2c4e2930585a`;
 
 
-var arin = input.split(/\r\n|\r|\n/);
-//console.log(arin);
-var accy = [];
-var tp = arin.length / 100;
+var hex_list = input.split(/\r\n|\r|\n/);
 
-//var solver = require('./solve3.js');
-for (var h = 0; h < arin.length; h++) {
-	console.log(h+'/'+arin.length+' - '+(h/tp)+'%');
-	const { execSync } = require('child_process');
-	let stdout = execSync('node solve3.js '+arin[h]);
+var s3 = require('./solve3.js');
 
-  	//console.log(`stdout: ${stdout}`);
-  	accy.push(stdout);
-	
-	
+function Main(hex_list) {
+    var message_candidates = hex_list
+	.map(s3.Main)
+	.filter((m) => m.length > 0);
+
+    return message_candidates;
 }
-console.log(`END: ${accy}`);
-//console.log(arin[0]);
+    
+module.exports = { Main, hex_list };
