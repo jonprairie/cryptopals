@@ -1,98 +1,47 @@
 'use strict';
-String.prototype.count=function(s1) { 
-    return (this.length - this.replace(new RegExp(s1,"g"), '').length) / s1.length;
-}
+
+String.prototype.CountChar = function(c) {
+    return this.split('').filter((x) => x == c).length;
+};
+Array.prototype.sum = function() { return this.reduce((x, y) => x+y); };
 
 var HexEngine = require('./hexdecode');
 var XorEngine = require('./xorengine');
 
 if (process.argv[2]) {
-	//console.log(process.argv);
-	var _cfcl = true;
-	Main (process.argv[2]);
+    //console.log(process.argv);
+    var _cfcl = true;
+    Main (process.argv[2]);
 }
 
-function Main (input_hex) {
-	var value1 = new HexEngine(input_hex);
+function ScoreMsg(msg) {
+
+    var good_chars = ['r', 's', 't', 'l', 'n', 'e'],
+        bad_chars = ['!', '"', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '~', ']', '^', '_', '`', '{', '}', '|', '\''];
+
+    var score =
+	good_chars.map(String.prototype.CountChar.bind(msg)).sum() -
+	bad_chars.map(String.prototype.CountChar.bind(msg)).sum();
+
+    return score;
+}
+
+function Main (input_hex, num_results=5) {
+    var decoded_input = new HexEngine(input_hex);
+    
+    var candidate_messages = [];
+
+    for(var i = 0; i < 256; ++i) {
+	var decrypted_input = decoded_input.raw.map((b) => b ^ i);
+	var hex_decrypted_input = new HexEngine(decrypted_input.toString('hex'));
 	
+	if (hex_decrypted_input.ascii) {
+	    candidate_messages.push(hex_decrypted_input.ascii);
+	} 
+    }
 
-	var i = 0;
-	var accr = [];
-	var bestr = '';
-	var cbest = 0;
-
-	function Score (text) {
-		var counted = (
-			text.count('r')+
-			text.count('s')+
-			text.count('t')+
-			text.count('l')+
-			text.count('n')+
-			text.count('e')-
-			text.count('!')-
-			text.count('"')-
-			text.count('#')-
-			text.count('$')-
-			text.count('%')-
-			text.count('&')-
-			text.count('\'')-
-			text.count('\\(')-
-			text.count('\\)')-
-			text.count('\\*')-
-			text.count('\\+')-
-			text.count('\\,')-
-			text.count('\\-')-
-			text.count('\\.')-
-			text.count('\\/')-
-			text.count('\\:')-
-			text.count('\\;')-
-			text.count('\\<')-
-			text.count('\\=')-
-			text.count('\\>')-
-			text.count('\\?')-
-			text.count('\\@')-
-			text.count('\\~')-
-			text.count('\\]')-
-			text.count('\\^')-
-			text.count('\\_')-
-			text.count('\\`')-
-			text.count('\\{')-
-			text.count('\\}')-
-			text.count('\\|')
-
-
-
-
-		);
-		if (counted > cbest) {
-			bestr = text;
-			cbest = counted; 
-		}
-	}
-
-	while (i < 256) {
-		var z = [];
-		var ThisKey = Buffer.from([i]);
-		for (var j = 0; j <= value1.raw.length; j++) {
-			var p = value1.raw[j] ^ ThisKey[0];
-			z.push(p);
-			
-		}
-		var w = new HexEngine((Buffer.from(z)).toString('hex'));
-		if (w.ascii) {
-			accr.push(w.ascii);
-			Score(w.ascii);
-		} 
-
-		i++;
-	}
-	function listall (l) {
-		for (var _i = 0; _i <= l.length; _i++) {
-			console.log((Buffer.from(l[_i])).toString('hex'));
-		}
-	}
-	console.log(bestr);
-	return accr;
-	//listall(accr);
+    return candidate_messages
+	.sort((m1, m2) => ScoreMsg(m2) - ScoreMsg(m1))
+	.slice(0, num_results);
 }
-module.exports = Main;
+module.exports = { Main, ScoreMsg };
