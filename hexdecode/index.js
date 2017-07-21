@@ -10,7 +10,7 @@ class hex2b64 {
 		try {
 			this.ascii = ((new Buffer(hex, 'hex')).toString('ascii'));
 			for (var i = 0; i < this.ascii.length; i++) {
-				if ((new Buffer(hex, 'hex'))[i] < 32 || (new Buffer(hex, 'hex'))[i] > 126) {
+				if ((new Buffer(hex, 'hex'))[i] > 126) {
 					throw new RangeError;
 				} 
 			}
