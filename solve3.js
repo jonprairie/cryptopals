@@ -1,18 +1,16 @@
 'use strict';
 
 String.prototype.CountChar = function(c) {
-    return this.split('').filter((x) => x == c).length;
+    return this
+	.split('')
+	.filter((x) => x == c)
+	.length;
 };
+
 Array.prototype.sum = function() { return this.reduce((x, y) => x+y); };
 
 var HexEngine = require('./hexdecode');
 var XorEngine = require('./xorengine');
-
-if (process.argv[2]) {
-    //console.log(process.argv);
-    var _cfcl = true;
-    Main (process.argv[2]);
-}
 
 function ScoreMsg(msg) {
 
@@ -44,4 +42,10 @@ function Main (input_hex, num_results=5) {
 	.sort((m1, m2) => ScoreMsg(m2) - ScoreMsg(m1))
 	.slice(0, num_results);
 }
+
 module.exports = { Main, ScoreMsg };
+
+if (process.argv[2]) {
+    var results = Main(process.argv[2]);
+    console.log(results);
+}
